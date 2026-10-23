@@ -20,3 +20,6 @@ models:
     +static_analysis: strict
     staging:
       +materialized: view
+
+analyses:
+  +static_analysis: strict
