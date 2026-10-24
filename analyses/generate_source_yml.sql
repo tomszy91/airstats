@@ -1,5 +1,7 @@
 {# Macro to generate source yml file #}
-{# Must be here to proper compile #}
+{{ config(
+    enabled=false
+)}}
 
 {{ codegen.generate_source(
     schema_name= 'raw',

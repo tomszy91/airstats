@@ -1,0 +1,147 @@
+// OurAirports raw schema (source: raw)
+// Paste into https://dbdiagram.io/d
+// Relationships are logical (BigQuery does not enforce them).
+
+Project airstats {
+  database_type: 'BigQuery'
+  Note: 'OurAirports open data, raw layer. Public domain.'
+}
+
+Table countries {
+  id int64 [pk]
+  code string [unique, note: 'ISO 3166-1 alpha-2 (plus unofficial, e.g. XK)']
+  name string
+  continent string
+  wikipedia_link string
+  keywords string
+
+  Note: 'Lookup of countries and country-like entities'
+}
+
+Table regions {
+  id int64 [pk]
+  code string [unique, note: 'country code + hyphen + local_code']
+  local_code string [note: 'U-A = not yet assigned to a region']
+  name string
+  continent string
+  iso_country string
+  wikipedia_link string
+  keywords string
+
+  Note: 'Top-level administrative subdivisions of countries'
+}
+
+Table airports {
+  id int64 [pk]
+  ident string [unique, note: 'Business key, ICAO code if available']
+  type string [note: 'balloonport, closed_airport, heliport, large_airport, medium_airport, seaplane_base, small_airport']
+  name string
+  latitude_deg float64
+  longitude_deg float64
+  elevation_ft int64
+  continent string
+  iso_country string
+  iso_region string
+  municipality string
+  scheduled_service boolean
+  icao_code string
+  iata_code string
+  gps_code string
+  local_code string
+  home_link string
+  wikipedia_link string
+  keywords string
+
+  Note: 'One row per airport, heliport, seaplane base, balloonport or closed airport'
+}
+
+Table runways {
+  id int64 [pk]
+  airport_ref int64
+  airport_ident string
+  length_ft int64
+  width_ft int64
+  surface string
+  lighted int64 [note: '1/0']
+  closed int64 [note: '1/0']
+  le_ident string
+  le_latitude_deg float64
+  le_longitude_deg float64
+  le_elevation_ft int64
+  le_heading_degt float64
+  le_displaced_threshold_ft int64
+  he_ident string
+  he_latitude_deg float64
+  he_longitude_deg float64
+  he_elevation_ft int64
+  he_heading_degt float64
+  he_displaced_threshold_ft int64
+
+  Note: 'Landing surfaces. le_* = low-numbered end, he_* = high-numbered end'
+}
+
+Table airport_frequencies {
+  id int64 [pk]
+  airport_ref int64
+  airport_ident string
+  type string [note: 'TWR, GND, ATIS, CTAF, ...']
+  description string
+  frequency_mhz float64
+
+  Note: 'Voice radio frequencies at airports'
+}
+
+Table airport_comments {
+  id int64 [pk]
+  threadref float64
+  airportref int64
+  airportident string
+  date timestamp
+  membernickname string
+  subject string
+  body string
+
+  Note: 'Member comments on airport pages'
+}
+
+Table navaids {
+  id int64 [pk]
+  filename string
+  ident string
+  name string
+  type string [note: 'DME, NDB, NDB-DME, TACAN, VOR, VOR-DME, VORTAC']
+  frequency_khz int64
+  latitude_deg float64
+  longitude_deg float64
+  elevation_ft int64
+  iso_country string
+  dme_frequency_khz int64
+  dme_channel string
+  dme_latitude_deg float64
+  dme_longitude_deg float64
+  dme_elevation_ft int64
+  slaved_variation_deg float64
+  magnetic_variation_deg float64
+  usagetype string [note: 'HI, LO, BOTH, TERM, RNAV']
+  power string [note: 'HIGH, MEDIUM, LOW, UNKNOWN']
+  associated_airport string
+
+  Note: 'Radio navigation aids'
+}
+
+// Geography
+Ref: airports.iso_country > countries.code
+Ref: airports.iso_region > regions.code
+Ref: regions.iso_country > countries.code
+Ref: navaids.iso_country > countries.code
+
+// Airport children (internal id)
+Ref: runways.airport_ref > airports.id
+Ref: airport_frequencies.airport_ref > airports.id
+Ref: airport_comments.airportref > airports.id
+
+// Airport children (business key)
+Ref: runways.airport_ident > airports.ident
+Ref: airport_frequencies.airport_ident > airports.ident
+Ref: airport_comments.airportident > airports.ident
+Ref: navaids.associated_airport > airports.ident

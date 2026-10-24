@@ -1,293 +1,387 @@
 sources:
   - name: raw
     description: >
-      Airports raw tables
+      Airports raw tables.
     tables:
       - name: airport_comments
-        description: ""
+        description: >
+          Comments left by OurAirports members on airport pages. One row per comment. Not covered by the official data dictionary.
         columns:
           - name: id
             data_type: int64
-            description: ""
+            description: >
+              Internal OurAirports identifier of the comment.
           - name: threadref
             data_type: float64
-            description: ""
+            description: >
+              Identifier of the discussion thread the comment belongs to. Typed as float64 in the raw load, treat as an integer-like key.
           - name: airportref
             data_type: int64
-            description: ""
+            description: >
+              Internal id of the airport the comment refers to. Matches airports.id.
           - name: airportident
             data_type: string
-            description: ""
+            description: >
+              Airport ident the comment refers to. Matches airports.ident.
           - name: date
             data_type: timestamp
-            description: ""
+            description: >
+              Date and time the comment was posted.
           - name: membernickname
             data_type: string
-            description: ""
+            description: >
+              Nickname of the member who wrote the comment.
           - name: subject
             data_type: string
-            description: ""
+            description: >
+              Subject line of the comment.
           - name: body
             data_type: string
-            description: ""
+            description: >
+              Free-text body of the comment.
 
       - name: airport_frequencies
-        description: ""
+        description: >
+          Each row in this dataset represents a single airport radio frequency for voice communication (radio navigation aids appear in navaids.csv). The column airport_ident is a foreign key referencing the ident column in airports.csv for the associated airport.
         columns:
           - name: id
             data_type: int64
-            description: ""
+            description: >
+              Internal OurAirports integer identifier for the frequency. This will stay persistent, even if the radio frequency or description changes.
           - name: airport_ref
             data_type: int64
-            description: ""
+            description: >
+              Internal integer foreign key matching the id column for the associated airport in airports.csv. (airport_ident is a better alternative.)
           - name: airport_ident
             data_type: string
-            description: ""
+            description: >
+              Externally-visible string foreign key matching the ident column for the associated airport in airports.csv.
           - name: type
             data_type: string
-            description: ""
+            description: >
+              A code for the frequency type. This isn't (currently) a controlled vocabulary, but probably will be soon. Some common values are "TWR" (tower), "ATF" or "CTAF" (common traffic frequency), "GND" (ground control), "RMP" (ramp control), "ATIS" (automated weather), "RCO" (remote radio outlet), "ARR" (arrivals), "DEP" (departures), "UNICOM" (monitored ground station), and "RDO" (a flight-service station).
           - name: description
             data_type: string
-            description: ""
+            description: >
+              A description of the frequency, typically the way a pilot would open a call on it.
           - name: frequency_mhz
             data_type: float64
-            description: ""
+            description: >
+              Radio voice frequency in megahertz. Note that the same frequency may appear multiple times for an airport, serving different functions.
 
       - name: airports
-        description: ""
+        description: >
+          Each row in this dataset represents the record for a single airport. The primary key for interoperability purposes with other datasets is ident, but the actual internal OurAirports primary key is id. iso_region is a foreign key into the regions.csv download file.
         columns:
           - name: id
             data_type: int64
-            description: ""
+            description: >
+              Internal OurAirports integer identifier for the airport. This will stay persistent, even if the airport code changes.
           - name: ident
             data_type: string
-            description: ""
+            description: >
+              The text identifier used in the OurAirports URL. This will be the ICAO code if available. Otherwise, it will be a local airport code (if no conflict), or if nothing else is available, an internally-generated code starting with the ISO2 country code, followed by a dash and a four-digit number.
           - name: type
             data_type: string
-            description: ""
+            description: >
+              The type of the airport. Allowed values are "balloonport", "closed_airport", "heliport", "large_airport", "medium_airport", "seaplane_base", and "small_airport". See the map legend for a definition of each type.
           - name: name
             data_type: string
-            description: ""
+            description: >
+              The official airport name, including "Airport", "Airstrip", etc.
           - name: latitude_deg
             data_type: float64
-            description: ""
+            description: >
+              The airport latitude in decimal degrees (positive for north).
           - name: longitude_deg
             data_type: float64
-            description: ""
+            description: >
+              The airport longitude in decimal degrees (positive for east).
           - name: elevation_ft
             data_type: int64
-            description: ""
+            description: >
+              The airport elevation MSL in feet (not metres).
           - name: continent
             data_type: string
-            description: ""
+            description: >
+              The code for the continent where the airport is (primarily) located. Allowed values are "AF" (Africa), "AN" (Antarctica), "AS" (Asia), "EU" (Europe), "NA" (North America), "OC" (Oceania), or "SA" (South America).
           - name: iso_country
             data_type: string
-            description: ""
+            description: >
+              The two-character ISO 3166:1-alpha2 code for the country where the airport is (primarily) located. A handful of unofficial, non-ISO codes are also in use, such as "XK" for Kosovo. Points to the code column in countries.csv.
           - name: iso_region
             data_type: string
-            description: ""
+            description: >
+              An alphanumeric code for the high-level administrative subdivision of a country where the airport is primarily located (e.g. province, governorate), prefixed by the ISO2 country code and a hyphen. OurAirports uses ISO 3166:2 codes whenever possible, preferring higher administrative levels, but also includes some custom codes. See the documentation for regions.csv.
           - name: municipality
             data_type: string
-            description: ""
+            description: >
+              The primary municipality that the airport serves (when available). Note that this is not necessarily the municipality where the airport is physically located.
           - name: scheduled_service
             data_type: boolean
-            description: ""
+            description: >
+              "true" if the airport currently has scheduled airline service; "false" otherwise.
           - name: icao_code
             data_type: string
-            description: ""
+            description: >
+              The code that an aviation GPS database (such as Jeppesen's or Garmin's) would normally use for the airport. This will always be the icao_code if the airport has one, but it is not guaranteed to be globally unique.
           - name: iata_code
             data_type: string
-            description: ""
+            description: >
+              he four-letter ICAO code for the airport (if it has one).
           - name: gps_code
             data_type: string
-            description: ""
+            description: >
+              The three-letter IATA code for the airport (if it has one).
           - name: local_code
             data_type: string
-            description: ""
+            description: >
+              The local country code for the airport, if different from the gps_code, icao_code, and iata_code fields (used mainly for US airports).
           - name: home_link
             data_type: string
-            description: ""
+            description: >
+              URL of the airport's official home page on the web, if one exists.
           - name: wikipedia_link
             data_type: string
-            description: ""
+            description: >
+              URL of the airport's page on Wikipedia, if one exists.
           - name: keywords
             data_type: string
-            description: ""
+            description: >
+              Extra keywords/phrases to assist with search, comma-separated. May include former names for the airport, alternate codes, names in other languages, nearby tourist destinations, etc.
 
       - name: countries
-        description: ""
+        description: >
+          Each row represents a country or country-like entity (e.g. Hong Kong). The iso_country column in airports.csv, navaids.csv, and regions.csv refer to the code column here.
         columns:
           - name: id
             data_type: int64
-            description: ""
+            description: >
+              Internal OurAirports integer identifier for the country. This will stay persistent, even if the country name or code changes.
           - name: code
             data_type: string
-            description: ""
+            description: >
+              The two-character ISO 3166:1-alpha2 code for the country. A handful of unofficial, non-ISO codes are also in use, such as "XK" for Kosovo. The iso_country field in airports.csv points into this column.
           - name: name
             data_type: string
-            description: ""
+            description: >
+              The common English-language name for the country. Other variations of the name may appear in the keywords field to assist with search.
           - name: continent
             data_type: string
-            description: ""
+            description: >
+              The code for the continent where the country is (primarily) located. See the continent code in airports.csv for allowed values.
           - name: wikipedia_link
             data_type: string
-            description: ""
+            description: >
+              Link to the Wikipedia article about the country.
           - name: keywords
             data_type: string
-            description: ""
+            description: >
+              A comma-separated list of search keywords/phrases related to the country.
 
       - name: navaids
-        description: ""
+        description: >
+          Each row in this dataset represents a single radio navigation. When the navaid is associated with an airport, the associated_airport field links to the ident field in airports.csv.
         columns:
           - name: id
             data_type: int64
-            description: ""
+            description: >
+              Internal OurAirports integer identifier for the navaid. This will stay persistent, even if the navaid identifier or frequency changes.
           - name: filename
             data_type: string
-            description: ""
+            description: >
+              This is a unique string identifier constructed from the navaid name and country, and used in the OurAirports URL.
           - name: ident
             data_type: string
-            description: ""
+            description: >
+              The 1-3 character identifer that the navaid transmits.
           - name: name
             data_type: string
-            description: ""
+            description: >
+              The name of the navaid, excluding its type.
           - name: type
             data_type: string
-            description: ""
+            description: >
+              The type of the navaid. Options are "DME", "NDB", "NDB-DME", "TACAN", "VOR", "VOR-DME", or "VORTAC". See the map legend for more information about each type.
           - name: frequency_khz
             data_type: int64
-            description: ""
+            description: >
+              The frequency of the navaid in kilohertz. If the Navaid operates on the VHF band (VOR, VOR-DME) or operates on the UHF band with a paired VHF frequency (DME, TACAN, VORTAC), the you need to divide this number by 1,000 to get the frequency in megahertz (115.3 MHz in this example). For an NDB or NDB-DME, you can use this frequency directly.
           - name: latitude_deg
             data_type: float64
-            description: ""
+            description: >
+              The latitude of the navaid in decimal degrees (negative for south).
           - name: longitude_deg
             data_type: float64
-            description: ""
+            description: >
+              The longitude of the navaid in decimal degrees (negative for west).
           - name: elevation_ft
             data_type: int64
-            description: ""
+            description: >
+              The navaid's elevation MSL in feet (not metres).
           - name: iso_country
             data_type: string
-            description: ""
+            description: >
+              The two-character ISO 3166:1-alpha2 code for the country that operates the navaid. A handful of unofficial, non-ISO codes are also in use, such as "XK" for Kosovo.
           - name: dme_frequency_khz
             data_type: int64
-            description: ""
+            description: >
+              The paired VHF frequency for the DME (or TACAN) in kilohertz. Divide by 1,000 to get the paired VHF frequency in megahertz (e.g. 115.3 MHz).
           - name: dme_channel
             data_type: string
-            description: ""
+            description: >
+              The DME channel (an alternative way of tuning distance-measuring equipment).
           - name: dme_latitude_deg
             data_type: float64
-            description: ""
+            description: >
+              The latitude of the associated DME in decimal degrees (negative for south). If missing, assume that the value is the same as latitude_deg.
           - name: dme_longitude_deg
             data_type: float64
-            description: ""
+            description: >
+              The longitude of the associated DME in decimal degrees (negative for west). If missing, assume that the value is the same as longitude_deg.
           - name: dme_elevation_ft
             data_type: int64
-            description: ""
+            description: >
+              The associated DME transmitters elevation MSL in feet. If missing, assume that it's the same value as elevation_ft.
           - name: slaved_variation_deg
             data_type: float64
-            description: ""
+            description: >
+              The magnetic variation adjustment built into a VOR's, VOR-DME's, or TACAN's radials. Positive means east (added to the true direction), and negative means west (subtracted from the true direction). This will not usually be the same as magnetic-variation because the magnetic pole is constantly in motion.
           - name: magnetic_variation_deg
             data_type: float64
-            description: ""
+            description: >
+              The actual magnetic variation at the navaid's location. Positive means east (added to the true direction), and negative means west (subtracted from the true direction).
           - name: usagetype
             data_type: string
-            description: ""
+            description: >
+              The primary function of the navaid in the airspace system. Options include "HI" (high-altitude airways, at or above flight level 180), "LO" (low-altitude airways), "BOTH" (high- and low-altitude airways), "TERM" (terminal-area navigation only), and "RNAV" (non-GPS area navigation).
           - name: power
             data_type: string
-            description: ""
+            description: >
+              The power-output level of the navaid. Options include "HIGH", "MEDIUM", "LOW", and "UNKNOWN".
           - name: associated_airport
             data_type: string
-            description: ""
+            description: >
+              The OurAirports text identifier (usually the ICAO code) for an airport associated with the navaid. Links to the ident column in airports.csv.
 
       - name: regions
-        description: ""
+        description: >
+          Each row represents a high-level administrative subdivision of a country. The iso_region column in airports.csv links to the code column in this dataset.
         columns:
           - name: id
             data_type: int64
-            description: ""
+            description: >
+              Internal OurAirports integer identifier for the region. This will stay persistent, even if the region code changes.
           - name: code
             data_type: string
-            description: ""
+            description: >
+              local_code prefixed with the country code to make a globally-unique identifier.
           - name: local_code
             data_type: string
-            description: ""
+            description: >
+              The local code for the administrative subdivision. Whenever possible, these are official ISO 3166:2, at the highest level available, but in some cases OurAirports has to use unofficial codes. There is also a pseudo code "U-A" for each country, which means that the airport has not yet been assigned to a region (or perhaps can't be, as in the case of a deep-sea oil platform).
           - name: name
             data_type: string
-            description: ""
+            description: >
+              The common English-language name for the administrative subdivision. In some cases, the name in local languages will appear in the keywords field assist search.
           - name: continent
             data_type: string
-            description: ""
+            description: >
+              A code for the continent to which the region belongs. See the continent field in airports.csv for a list of codes.
           - name: iso_country
             data_type: string
-            description: ""
+            description: >
+              The two-character ISO 3166:1-alpha2 code for the country containing the administrative subdivision. A handful of unofficial, non-ISO codes are also in use, such as "XK" for Kosovo.
           - name: wikipedia_link
             data_type: string
-            description: ""
+            description: >
+              A link to the Wikipedia article describing the subdivision.
           - name: keywords
             data_type: string
-            description: ""
+            description: >
+              A comma-separated list of keywords to assist with search. May include former names for the region, and/or the region name in other languages.
 
       - name: runways
-        description: ""
+        description: >
+          Each row in this dataset represents a single airport landing surface (runway, helipad, or waterway). The initial fields apply to the entire surface, in both directions. Fields beginning with le_* apply only to the low-numbered end of the runway (e.g. 09), while fields beginning with he_* apply only to the high-numbered end of the runway (e.g. 27).
         columns:
           - name: id
             data_type: int64
-            description: ""
+            description: >
+              Internal OurAirports integer identifier for the runway. This will stay persistent, even if the runway numbering changes.
           - name: airport_ref
             data_type: int64
-            description: ""
+            description: >
+              Internal integer foreign key matching the id column for the associated airport in airports.csv. (airport_ident is a better alternative.)
           - name: airport_ident
             data_type: string
-            description: ""
+            description: >
+              Externally-visible string foreign key matching the ident column for the associated airport in airports.csv.
           - name: length_ft
             data_type: int64
-            description: ""
+            description: >
+              Length of the full runway surface (including displaced thresholds, overrun areas, etc) in feet.
           - name: width_ft
             data_type: int64
-            description: ""
+            description: >
+              Width of the runway surface in feet.
           - name: surface
             data_type: string
-            description: ""
+            description: >
+              Code for the runway surface type. This is not yet a controlled vocabulary, but probably will be soon. Some common values include "ASP" (asphalt), "TURF" (turf), "CON" (concrete), "GRS" (grass), "GRE" (gravel), "WATER" (water), and "UNK" (unknown).
           - name: lighted
             data_type: int64
-            description: ""
+            description: >
+              1 if the surface is lighted at night, 0 otherwise. (Note that this is inconsistent with airports.csv, which uses "yes" and "no" instead of 1 and 0.)
           - name: closed
             data_type: int64
-            description: ""
+            description: >
+              1 if the runway surface is currently closed, 0 otherwise.
           - name: le_ident
             data_type: string
-            description: ""
+            description: >
+              Identifier for the low-numbered end of the runway.
           - name: le_latitude_deg
             data_type: float64
-            description: ""
+            description: >
+              Latitude of the centre of the low-numbered end of the runway, in decimal degrees (positive is north), if available.
           - name: le_longitude_deg
             data_type: float64
-            description: ""
+            description: >
+              Longitude of the centre of the low-numbered end of the runway, in decimal degrees (positive is east), if available.
           - name: le_elevation_ft
             data_type: int64
-            description: ""
+            description: >
+              Elevation above MSL of the low-numbered end of the runway in feet.
           - name: le_heading_degt
             data_type: float64
-            description: ""
+            description: >
+              Heading of the low-numbered end of the runway in degrees true (not magnetic).
           - name: le_displaced_threshold_ft
             data_type: int64
-            description: ""
+            description: >
+              Length of the displaced threshold (if any) for the low-numbered end of the runway, in feet.
           - name: he_ident
             data_type: string
-            description: ""
+            description: >
+              Identifier for the high-numbered end of the runway.
           - name: he_latitude_deg
             data_type: float64
-            description: ""
+            description: >
+              Latitude of the centre of the high-numbered end of the runway, in decimal degrees (positive is north), if available.
           - name: he_longitude_deg
             data_type: float64
-            description: ""
+            description: >
+              Longitude of the centre of the high-numbered end of the runway, in decimal degrees (positive is east), if available.
           - name: he_elevation_ft
             data_type: int64
-            description: ""
+            description: >
+              Elevation above MSL of the high-numbered end of the runway in feet.
           - name: he_heading_degt
             data_type: float64
-            description: ""
+            description: >
+              Heading of the high-numbered end of the runway in degrees true (not magnetic).
           - name: he_displaced_threshold_ft
             data_type: int64
-            description: ""
+            description: >
+              Length of the displaced threshold (if any) for the high-numbered end of the runway, in feet.
