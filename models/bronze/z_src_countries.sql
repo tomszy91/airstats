@@ -1,5 +1,9 @@
+{{ config(
+    enabled=false
+) }}
+
 with
-    source as (select * from `agile-fort-512513-d5`.`raw`.`countries` ),
+    source as (select * from {{ source('raw', 'countries') }} ),
 
     renamed as (
         select

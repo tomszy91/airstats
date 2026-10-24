@@ -18,5 +18,7 @@ seeds:
 models:
   airstats:
     +static_analysis: strict
-    staging:
+    bronze:
       +materialized: view
+
+#! https://github.com/zoltanctoth/dbt-capstone-project#part-5-staging-models-bronze-layer      
