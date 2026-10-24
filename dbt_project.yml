@@ -2,6 +2,7 @@ name: airstats
 
 profile: airstats
 
+asset-paths: ["assets"]
 snapshot-paths: ["snapshots"]
 analysis-paths: ["analyses"]
 seed-paths: ["seeds"]
@@ -27,8 +28,6 @@ on-run-start:
 
 models:
   airstats:
-    +grants:
-      roles/bigquery.dataViewer: ["specialGroup:allUsers"]
     +post-hook:
       - "insert into `{{ target.database }}.{{ target.schema }}.audit_log` values ('{{ this }}', current_timestamp())"
     +static_analysis: strict

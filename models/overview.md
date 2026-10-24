@@ -6,10 +6,10 @@ Welcome to Airstats pipeline documentation.
 
 ## Source
 
-Data colleted from [Our Airports](https://ourairports.com/)
+Data collected from [Our Airports](https://ourairports.com/)
 
 Here is the schema:
-![input schema](/assets/airstats_schema.png)
+![input schema](https://raw.githubusercontent.com/tomszy91/airstats/main/assets/airstats_schema.png)
 
 ## Discuss
 
