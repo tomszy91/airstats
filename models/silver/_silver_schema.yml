@@ -1,0 +1,217 @@
+version: 2
+
+models:
+  - name: silver_airport_comments
+    description: >
+      Comments left by OurAirports members on airport pages. One row per comment. Not covered by the official data dictionary.
+      Only relevant columns selected.
+    columns:
+      - name: comment_id
+        data_type: int64
+        description: >
+          Internal OurAirports identifier of the comment.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: airport_ref
+        data_type: int64
+        description: >
+          Internal id of the airport the comment refers to.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('src_airports')
+                field: airport_id
+
+      - name: airport_ident
+        data_type: string
+        description: >
+          Airport ident the comment refers to.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('src_airports')
+                field: airport_ident
+
+      - name: comment_timestamp
+        data_type: timestamp
+        description: >
+          Date and time the comment was posted.
+
+      - name: member_nickname
+        data_type: string
+        description: >
+          Nickname of the member who wrote the comment.
+
+      - name: subject
+        data_type: string
+        description: >
+          Subject line of the comment.
+
+      - name: body
+        data_type: string
+        description: >
+          Free-text body of the comment.
+
+      - name: loaded_at
+        data_type: timestamp
+        description: >
+          Timestamp when comment was loaded into the table.
+
+  - name: silver_airports
+    description: >
+      Each row in this dataset represents the record for a single airport. The primary key for interoperability purposes with other datasets is ident, but the actual internal OurAirports primary key is id.
+    columns:
+      - name: airport_id
+        data_type: int64
+        description: >
+          Internal OurAirports integer identifier for the airport. This will stay persistent, even if the airport code changes.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: airport_ident
+        data_type: string
+        description: >
+          The text identifier used in the OurAirports URL. This will be the ICAO code if available. Otherwise, it will be a local airport code (if no conflict), or if nothing else is available, an internally-generated code starting with the ISO2 country code, followed by a dash and a four-digit number.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: airport_type
+        data_type: string
+        description: >
+          {{ doc('airport_type') }}
+        data_tests:
+          - accepted_values:
+              arguments:
+                values:
+                  [
+                    "balloonport",
+                    "closed",
+                    "heliport",
+                    "large_airport",
+                    "medium_airport",
+                    "seaplane_base",
+                    "small_airport",
+                  ]
+
+      - name: airport_name
+        data_type: string
+        description: >
+          The official airport name, including "Airport", "Airstrip", etc.
+
+      - name: airport_lat
+        data_type: float64
+        description: >
+          The airport latitude in decimal degrees (positive for north).
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: -90
+                max_value: 90
+                strictly: false # >= <=
+
+      - name: airport_long
+        data_type: float64
+        description: >
+          The airport longitude in decimal degrees (positive for east).
+        data_tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: -180
+                max_value: 180
+                strictly: false # >= <=
+
+      - name: airport_location
+        data_type: geography
+        description: >
+          The airport location as Big Query point geography data type.
+
+      - name: continent
+        data_type: string
+        description: >
+          The code for the continent where the airport is (primarily) located. Allowed values are "AF" (Africa), "AN" (Antarctica), "AS" (Asia), "EU" (Europe), "NA" (North America), "OC" (Oceania), or "SA" (South America).
+
+      - name: iso_country
+        data_type: string
+        description: >
+          The two-character ISO 3166:1-alpha2 code for the country where the airport is (primarily) located. A handful of unofficial, non-ISO codes are also in use, such as "XK" for Kosovo.
+        data_tests:
+          - dbt_expectations.expect_column_values_to_match_regex:
+              arguments:
+                regex: "^[A-Z]{2}$"
+                is_raw: True # (Optional)
+
+      - name: iso_region
+        data_type: string
+        description: >
+          An alphanumeric code for the high-level administrative subdivision of a country where the airport is primarily located (e.g. province, governorate), prefixed by the ISO2 country code and a hyphen. OurAirports uses ISO 3166:2 codes whenever possible, preferring higher administrative levels, but also includes some custom codes. See the documentation for regions.csv.
+
+  - name: silver_runways
+    description: >
+      Each row in this dataset represents a single airport landing surface (runway, helipad, or waterway). The initial fields apply to the entire surface, in both directions. Fields beginning with le_* apply only to the low-numbered end of the runway (e.g. 09), while fields beginning with he_* apply only to the high-numbered end of the runway (e.g. 27).
+    columns:
+      - name: runway_id
+        data_type: int64
+        description: >
+          Internal OurAirports integer identifier for the runway. This will stay persistent, even if the runway numbering changes.
+        data_tests:
+          - unique
+          - not_null
+
+      - name: airport_ref
+        data_type: int64
+        description: >
+          Internal integer foreign key matching the id column for the associated airport in airports.csv. (airport_ident is a better alternative.)
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('src_airports')
+                field: airport_id
+
+      - name: airport_ident
+        data_type: string
+        description: >
+          Externally-visible string foreign key matching the ident column for the associated airport in airports.csv.
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('src_airports')
+                field: airport_ident
+
+      - name: runway_length_ft
+        data_type: int64
+        description: >
+          Length of the full runway surface (including displaced thresholds, overrun areas, etc) in feet.
+
+      - name: runway_width_ft
+        data_type: int64
+        description: >
+          Width of the runway surface in feet.
+
+      - name: runway_surface
+        data_type: string
+        description: >
+          Code for the runway surface type. This is not yet a controlled vocabulary, but probably will be soon. Some common values include "ASP" (asphalt), "TURF" (turf), "CON" (concrete), "GRS" (grass), "GRE" (gravel), "WATER" (water), and "UNK" (unknown). Null values or empty strings are replaced to '__UNKNOWN__'
+
+      - name: runway_lighted
+        data_type: boolean
+        description: >
+          `True` if the surface is lighted at night, `False` otherwise.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["false", "true"]
+                quote: false
+
+      - name: runway_closed
+        data_type: boolean
+        description: >
+          `True` if the runway surface is currently closed, `False` otherwise.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["false", "true"]
+                quote: false

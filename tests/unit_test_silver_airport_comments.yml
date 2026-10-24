@@ -1,0 +1,18 @@
+unit_tests:
+  - name: unit_test_silver_airport_comments
+    model: silver_airport_comments
+    overrides:
+      macros:
+        is_incremental: false
+    given:
+      - input: ref("src_airport_comments")
+        rows:
+          - { member_nickname: null, comment_body: "Body1" }
+          - { member_nickname: "", comment_body: "Body2" }
+          - { member_nickname: "Bonnie", comment_body: "Body3" }
+
+    expect:
+      rows:
+        - { member_nickname: "__UNKNOWN__", comment_body: "Body1" }
+        - { member_nickname: "__UNKNOWN__", comment_body: "Body2" }
+        - { member_nickname: "Bonnie", comment_body: "Body3" }

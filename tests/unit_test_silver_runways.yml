@@ -1,0 +1,16 @@
+unit_tests:
+  - name: unit_test_silver_runways
+    model: silver_runways
+
+    given:
+      - input: ref("src_runways")
+        rows:
+          - {runway_surface:    null}
+          - {runway_surface:    ''}
+          - {runway_surface:    'ASPH-TURF'}
+
+    expect:
+      rows:
+        - {runway_surface:      '__UNKNOWN__'}
+        - {runway_surface:      '__UNKNOWN__'}
+        - {runway_surface:      'ASPH-TURF'}

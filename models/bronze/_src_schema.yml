@@ -10,29 +10,16 @@ models:
         data_type: int64
         description: >
           Internal OurAirports identifier of the comment.
-        data_tests:
-          - unique
-          - not_null
 
       - name: airport_ref
         data_type: int64
         description: >
           Internal id of the airport the comment refers to.
-        data_tests:
-          - relationships:
-              arguments:
-                to: ref('src_airports')
-                field: airport_id
 
       - name: airport_ident
         data_type: string
         description: >
           Airport ident the comment refers to.
-        data_tests:
-          - relationships:
-              arguments:
-                to: ref('src_airports')
-                field: airport_ident
 
       - name: comment_timestamp
         data_type: timestamp
@@ -62,35 +49,16 @@ models:
         data_type: int64
         description: >
           Internal OurAirports integer identifier for the airport. This will stay persistent, even if the airport code changes.
-        data_tests:
-          - unique
-          - not_null
 
       - name: airport_ident
         data_type: string
         description: >
           The text identifier used in the OurAirports URL. This will be the ICAO code if available. Otherwise, it will be a local airport code (if no conflict), or if nothing else is available, an internally-generated code starting with the ISO2 country code, followed by a dash and a four-digit number.
-        data_tests:
-          - unique
-          - not_null
 
       - name: airport_type
         data_type: string
         description: >
-          The type of the airport. Allowed values are "balloonport", "closed_airport", "heliport", "large_airport", "medium_airport", "seaplane_base", and "small_airport". See the map legend for a definition of each type.
-        data_tests:
-          - accepted_values:
-              arguments:
-                values:
-                  [
-                    "balloonport",
-                    "closed",
-                    "heliport",
-                    "large_airport",
-                    "medium_airport",
-                    "seaplane_base",
-                    "small_airport",
-                  ]
+          {{ doc('airport_type') }}
 
       - name: airport_name
         data_type: string
@@ -101,23 +69,11 @@ models:
         data_type: float64
         description: >
           The airport latitude in decimal degrees (positive for north).
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              arguments:
-                min_value: -90    
-                max_value: 90
-                strictly: false # >= <=
 
       - name: airport_long
         data_type: float64
         description: >
           The airport longitude in decimal degrees (positive for east).
-        data_tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              arguments:
-                min_value: -180
-                max_value: 180
-                strictly: false # >= <=
 
       - name: airport_location
         data_type: geography
@@ -133,11 +89,6 @@ models:
         data_type: string
         description: >
           The two-character ISO 3166:1-alpha2 code for the country where the airport is (primarily) located. A handful of unofficial, non-ISO codes are also in use, such as "XK" for Kosovo.
-        data_tests:
-          - dbt_expectations.expect_column_values_to_match_regex:
-              arguments:
-                regex: "^[A-Z]{2}$"
-                is_raw: True # (Optional)    
 
       - name: iso_region
         data_type: string
@@ -152,29 +103,16 @@ models:
         data_type: int64
         description: >
           Internal OurAirports integer identifier for the runway. This will stay persistent, even if the runway numbering changes.
-        data_tests:
-          - unique
-          - not_null
 
       - name: airport_ref
         data_type: int64
         description: >
           Internal integer foreign key matching the id column for the associated airport in airports.csv. (airport_ident is a better alternative.)
-        data_tests:
-          - relationships:
-              arguments:
-                to: ref('src_airports')
-                field: airport_id
 
       - name: airport_ident
         data_type: string
         description: >
           Externally-visible string foreign key matching the ident column for the associated airport in airports.csv.
-        data_tests:
-          - relationships:
-              arguments:
-                to: ref('src_airports')
-                field: airport_ident
 
       - name: runway_length_ft
         data_type: int64
@@ -195,18 +133,8 @@ models:
         data_type: boolean
         description: >
           `True` if the surface is lighted at night, `False` otherwise.
-        data_tests:
-          - accepted_values:
-              arguments:
-                values: ["false", "true"]
-                quote: false
 
       - name: runway_closed
         data_type: boolean
         description: >
           `True` if the runway surface is currently closed, `False` otherwise.
-        data_tests:
-          - accepted_values:
-              arguments:
-                values: ["false", "true"]
-                quote: false

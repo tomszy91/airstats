@@ -84,7 +84,7 @@ sources:
           - name: type
             data_type: string
             description: >
-              The type of the airport. Allowed values are "balloonport", "closed_airport", "heliport", "large_airport", "medium_airport", "seaplane_base", and "small_airport". See the map legend for a definition of each type.
+              {{ doc('airport_type') }}
           - name: name
             data_type: string
             description: >
